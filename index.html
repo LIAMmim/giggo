@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Giggo — Local work, as easy as booking a ride</title>
+<!-- Installable app (PWA) -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#0f1720" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Giggo" />
+<style>
+  :root{
+    --bg:#0f1720; --panel:#16212e; --panel2:#1d2b3a; --line:#28384a;
+    --ink:#eef4fb; --muted:#9db0c6; --brand:#38d39f; --brand2:#5aa2ff;
+    --warn:#ffcf5c; --danger:#ff7a7a; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 80% -10%,#1a2a3d 0%,var(--bg) 55%);color:var(--ink);line-height:1.5}
+  a{color:var(--brand2);text-decoration:none}
+  header{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);
+    background:rgba(15,23,32,.75);border-bottom:1px solid var(--line)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  nav{display:flex;align-items:center;gap:16px;height:62px}
+  .logo{font-weight:800;font-size:20px;letter-spacing:.3px;cursor:pointer}
+  .logo span{color:var(--brand)}
+  nav .spacer{flex:1}
+  nav button.link{background:none;border:0;color:var(--muted);font-size:15px;cursor:pointer;padding:8px 6px}
+  nav button.link:hover{color:var(--ink)}
+  .btn{cursor:pointer;border:0;border-radius:10px;padding:11px 16px;font-weight:700;font-size:15px}
+  .btn.primary{background:linear-gradient(180deg,var(--brand),#22b487);color:#052018}
+  .btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+  .btn.block{width:100%}
+  .btn.sm{padding:8px 12px;font-size:14px}
+  .hero{padding:60px 0 26px}
+  .hero h1{font-size:44px;line-height:1.08;margin:0 0 14px;font-weight:850;letter-spacing:-.5px}
+  .hero h1 .hl{background:linear-gradient(120deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.lead{font-size:19px;color:var(--muted);max-width:660px;margin:0 0 22px}
+  .initiative{font-size:14px;font-weight:700;letter-spacing:.4px;color:var(--brand);margin:0 0 26px;text-transform:uppercase}
+  .pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+  .pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--muted)}
+  .pill b{color:var(--brand)}
+  /* segmented toggle */
+  .seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+  .seg button{border:0;background:none;color:var(--muted);font-weight:700;font-size:15px;padding:10px 20px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:linear-gradient(180deg,var(--brand),#22b487);color:#052018}
+  .grid{display:grid;gap:16px}
+  .stats{grid-template-columns:repeat(3,1fr);margin:28px 0}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .stat .n{font-size:28px;font-weight:850;color:var(--brand)}
+  .stat .l{color:var(--muted);font-size:14px}
+  section.block{padding:22px 0}
+  h2{font-size:26px;margin:0 0 6px;font-weight:800}
+  .sub{color:var(--muted);margin:0 0 20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .jobs{grid-template-columns:repeat(2,1fr)}
+  .job h3{margin:0 0 4px;font-size:18px}
+  .job .meta{color:var(--muted);font-size:13px;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line)}
+  .badge.cat{color:var(--brand2);border-color:#284a74;background:#101f33}
+  .badge.pay{color:var(--warn);border-color:#5a4a1f;background:#2a220f}
+  .badge.area{color:var(--muted)}
+  .badge.age{color:var(--brand);border-color:#1f5a47;background:#0f2a22}
+  .badge.verified{color:var(--brand);border-color:#1f5a47;background:#0f2a22}
+  .job .desc{color:var(--muted);font-size:14px}
+  .job .foot{margin-top:12px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+  .poster{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .stars{color:var(--warn);font-size:12px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  input,select,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:11px 12px;font-size:15px;width:100%;font-family:inherit}
+  textarea{resize:vertical;min-height:80px}
+  label{font-size:13px;color:var(--muted);display:block;margin:12px 0 5px}
+  .field{flex:1;min-width:170px}
+  .skillgrid{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{cursor:pointer;user-select:none;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:8px 13px;font-size:14px}
+  .chip.on{background:linear-gradient(180deg,var(--brand),#22b487);color:#052018;border-color:transparent;font-weight:700}
+  .modal-bg{position:fixed;inset:0;background:rgba(4,8,12,.72);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:540px;width:100%;padding:24px;max-height:90vh;overflow:auto}
+  .modal h2{font-size:22px}
+  .close{float:right;background:none;border:0;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+  .safe{background:#0f2a22;border:1px solid #1f5a47;border-radius:12px;padding:14px;font-size:14px;color:#bfe9d8;margin:14px 0}
+  .safe b{color:var(--brand)}
+  .warnbox{background:#2a220f;border:1px solid #5a4a1f;border-radius:12px;padding:14px;font-size:14px;color:#f2e2b8;margin:14px 0}
+  .escrow{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;margin:10px 0;background:var(--panel2)}
+  .escrow .ico{font-size:22px}
+  .escrow b{color:var(--ink)}
+  .escrow small{color:var(--muted)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .safetygrid{grid-template-columns:repeat(3,1fr)}
+  .sfeat .ico{font-size:24px}
+  .sfeat h4{margin:8px 0 4px;font-size:16px}
+  .sfeat p{margin:0;color:var(--muted);font-size:13px}
+  footer{border-top:1px solid var(--line);margin-top:40px;padding:26px 0;color:var(--muted);font-size:13px}
+  .hidden{display:none}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--brand);color:#052018;
+    font-weight:700;padding:12px 20px;border-radius:12px;z-index:80;opacity:0;transition:.3s;pointer-events:none;max-width:90%;text-align:center}
+  .toast.show{opacity:1;bottom:34px}
+  .muted{color:var(--muted)}
+  .locked{filter:blur(4px);user-select:none}
+  /* Install-app button (appears when the browser allows install) */
+  .btn.install{display:none;background:var(--panel2);color:var(--ink);border:1px solid var(--brand);gap:6px;align-items:center}
+  .btn.install.show{display:inline-flex}
+  /* ---- Mobile app shell: bottom tab bar (phones only) ---- */
+  .tabbar{display:none}
+  .tabbar .tab .ico svg{display:block}
+  @media(max-width:760px){
+    .jobs,.stats,.row2,.safetygrid{grid-template-columns:1fr}
+    .hero h1{font-size:34px}
+    header{padding-top:env(safe-area-inset-top)}
+    nav button.link{display:none}          /* those live in the bottom bar on phones */
+    body{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+    .hero{padding-top:26px}
+    /* app-like bottom navigation */
+    .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;
+      background:rgba(15,23,32,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);
+      padding:8px 6px calc(8px + env(safe-area-inset-bottom));justify-content:space-around}
+    .tabbar .tab{flex:1;background:none;border:0;cursor:pointer;color:var(--muted);
+      display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:4px 2px}
+    .tabbar .tab .ico{width:24px;height:24px;display:grid;place-items:center}
+    .tabbar .tab.on{color:var(--brand)}
+    .tabbar .tab.post .ico{width:44px;height:34px;border-radius:11px;margin-top:-2px;
+      background:linear-gradient(180deg,var(--brand),#22b487);color:#052018}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <div class="logo" onclick="scrollTop()">Gig<span>go</span></div>
+      <div class="spacer"></div>
+      <button class="link" onclick="setMode('work');scrollToId('panel')">Find work</button>
+      <button class="link" onclick="setMode('hire');scrollToId('panel')">Post a job</button>
+      <button class="link" onclick="scrollToId('safety')">Trust &amp; safety</button>
+      <button class="btn install" id="installBtn" onclick="installApp()">⬇ Install app</button>
+      <button class="btn primary" onclick="openSignup()">Get started</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="initiative">A community development &amp; economic opportunity initiative</p>
+    <h1>Local work,<br><span class="hl">as easy as booking a ride.</span></h1>
+    <p class="lead">Giggo connects local people with flexible work in minutes — <b>no CV, no long applications</b>. Find a gig nearby, or post a job and hire someone trusted today.</p>
+    <div class="seg" id="heroSeg">
+      <button id="segWork" class="on" onclick="setMode('work')">I want to work</button>
+      <button id="segHire" onclick="setMode('hire')">I want to hire</button>
+    </div>
+    <div class="pills">
+      <span class="pill">Open to <b>everyone</b>, ages 12+</span>
+      <span class="pill"><b>Secure in-app pay</b> · protected</span>
+      <span class="pill">Built for those apps <b>ignore</b></span>
+    </div>
+    <div class="grid stats">
+      <div class="stat"><div class="n" id="statJobs">–</div><div class="l">local gigs open right now</div></div>
+      <div class="stat"><div class="n">&lt;2 min</div><div class="l">to build a profile — no CV</div></div>
+      <div class="stat"><div class="n">100%</div><div class="l">of paid jobs protected in-app</div></div>
+    </div>
+  </section>
+
+  <!-- PANEL: switches between Find work and Post a job -->
+  <section class="block" id="panel">
+
+    <!-- FIND WORK -->
+    <div id="viewWork">
+      <h2>Find work near you</h2>
+      <p class="sub">Filter by area, category and your availability. Every paid job is protected when you get paid through Giggo.</p>
+      <div class="controls">
+        <div class="field">
+          <label>Neighborhood</label>
+          <select id="fArea" onchange="renderJobs()"></select>
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select id="fCat" onchange="renderJobs()"></select>
+        </div>
+        <div class="field">
+          <label>Your age</label>
+          <select id="fAge" onchange="renderJobs()"></select>
+        </div>
+        <div class="field">
+          <label>Search</label>
+          <input id="fSearch" placeholder="dog walking, tutoring…" oninput="renderJobs()"/>
+        </div>
+      </div>
+      <p class="sub" id="jobCount" style="margin-top:4px"></p>
+      <div class="grid jobs" id="jobList"></div>
+    </div>
+
+    <!-- POST A JOB -->
+    <div id="viewHire" class="hidden">
+      <h2>Post a job</h2>
+      <p class="sub">Describe the task and what you'll pay. You'll only share contact details after you confirm a booking — that keeps everyone protected.</p>
+      <div class="card" style="max-width:640px">
+        <label>Job title</label>
+        <input id="pTitle" placeholder="Walk my dog on weekday mornings"/>
+        <div class="row2">
+          <div><label>Category</label><select id="pCat"></select></div>
+          <div><label>Neighborhood</label><select id="pArea"></select></div>
+        </div>
+        <div class="row2">
+          <div>
+            <label>Pay offer</label>
+            <div style="display:flex;gap:8px">
+              <div style="position:relative;flex:1">
+                <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">£</span>
+                <input id="pPay" type="number" min="1" step="1" inputmode="numeric" placeholder="15" style="padding-left:24px"/>
+              </div>
+              <select id="pUnit" style="flex:1"></select>
+            </div>
+          </div>
+          <div><label>Minimum age</label><select id="pMinAge"></select></div>
+        </div>
+        <label>Details</label>
+        <textarea id="pDesc" placeholder="Two friendly dogs, 30-minute walks, tools provided. Daytime only."></textarea>
+        <div class="warnbox" style="font-size:13px">
+          💳 Workers get paid through Giggo and the money is held safely until the job is marked done. <b>Cash or off-app payments aren't protected.</b>
+        </div>
+        <button class="btn primary block" onclick="submitJob()">Post job &amp; find workers</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="block" id="how">
+    <h2>How Giggo works</h2>
+    <p class="sub">Fast to start, safe by design — for both sides.</p>
+    <div class="row2">
+      <div class="card">
+        <h3 style="margin-top:0">🔎 For workers</h3>
+        <p class="muted" style="font-size:14px">Build a profile in under 2 minutes, apply with one tap, agree a price, do the job, and get paid securely — building a real work history from job one. No CV, no ghosting.</p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">📣 For posters</h3>
+        <p class="muted" style="font-size:14px">Post a task in a minute, see nearby rated people, book the right one, and pay in-app only when it's done. No recruiters, no long job-board listings.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section class="block" id="safety">
+    <h2>Trust &amp; safety</h2>
+    <p class="sub">Trust is the product. Here's how we protect everyone — and keep jobs on-platform.</p>
+    <div class="grid safetygrid">
+      <div class="card sfeat"><div class="ico">🪪</div><h4>Identity verification</h4><p>Real, verified people on both sides of every job.</p></div>
+      <div class="card sfeat"><div class="ico">🔒</div><h4>Escrow payments</h4><p>Money is held safely and released when the job is done.</p></div>
+      <div class="card sfeat"><div class="ico">⭐</div><h4>Two-way ratings</h4><p>Workers and posters review each other, from the first job.</p></div>
+      <div class="card sfeat"><div class="ico">🚩</div><h4>Reporting</h4><p>Flag bad actors; every booking has a clear record.</p></div>
+      <div class="card sfeat"><div class="ico">👨‍👩‍👧</div><h4>Under-18 controls</h4><p>Age limits, guardian approval, and age-appropriate jobs only.</p></div>
+      <div class="card sfeat"><div class="ico">🛡️</div><h4>Pay-in-app protection</h4><p>Covered if something goes wrong — cash jobs are not.</p></div>
+    </div>
+    <div class="warnbox">
+      <b>Why pay through Giggo?</b> Contact details stay hidden until a booking is confirmed, and only in-app jobs count toward ratings, work history and protection. Moving to WhatsApp or cash means no proof, no protection, and no help if something goes wrong.
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <b>Giggo</b> — a demo prototype: local, flexible work, open to everyone, with a youth &amp; community focus.<br>
+    Educational sample app. No real personal or financial data — your demo profile and posted jobs are stored only in your own browser. Before real-world use, verify local labor laws (especially for under-18s), payment regulations, and identity-verification requirements in your jurisdiction.
+  </div>
+</footer>
+
+<!-- BOOKING MODAL -->
+<div class="modal-bg" id="booking">
+  <div class="modal">
+    <button class="close" onclick="closeModal('booking')">×</button>
+    <h2 id="bkTitle">Apply for this job</h2>
+    <p class="muted" style="font-size:14px;margin-top:0" id="bkSub"></p>
+    <div class="escrow"><div class="ico">🔒</div><div><b>Paid through Giggo</b><br><small>Payment is held in escrow and released to you automatically when the job is marked complete.</small></div></div>
+    <div class="escrow"><div class="ico">🙈</div><div><b>Contact stays hidden</b><br><small>Phone numbers and chat details are shared only after the booking is confirmed by both sides.</small></div></div>
+    <div class="escrow"><div class="ico">🛡️</div><div><b>You're protected</b><br><small>In-app jobs are covered by Giggo protection and build your work history. Cash jobs are not.</small></div></div>
+    <button class="btn primary block" style="margin-top:8px" onclick="confirmBooking()">Send application</button>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="modal-bg" id="signup">
+  <div class="modal">
+    <button class="close" onclick="closeModal('signup')">×</button>
+    <h2>Join Giggo</h2>
+    <p class="muted" style="font-size:14px;margin-top:0">Two minutes, no CV. Under-18s need guardian approval before working.</p>
+
+    <label>First name</label>
+    <input id="sName" placeholder="Alex"/>
+
+    <label>I want to…</label>
+    <div class="seg" style="display:flex">
+      <button type="button" id="rWork" class="on" style="flex:1" onclick="setRole('work')">Find work</button>
+      <button type="button" id="rHire" style="flex:1" onclick="setRole('hire')">Hire / post jobs</button>
+    </div>
+
+    <div class="row2">
+      <div><label>Age</label><select id="sAge" onchange="toggleGuardian()"></select></div>
+      <div><label>Neighborhood</label><select id="sArea"></select></div>
+    </div>
+
+    <div id="skillsWrap">
+      <label>Your skills (pick a few)</label>
+      <div class="skillgrid" id="signupSkills"></div>
+    </div>
+
+    <div id="guardianBox">
+      <div class="safe" style="margin-bottom:6px"><b>Guardian approval required.</b> We'll confirm with your parent/guardian by email. Working starts once they approve.</div>
+      <label>Guardian email</label>
+      <input id="sGuardian" placeholder="parent@email.com" type="email"/>
+    </div>
+
+    <div class="warnbox" style="font-size:13px">
+      💳 Payments run securely through Giggo. We never ask a young person for a bank login or account number — payouts for under-18s are guardian-linked.
+    </div>
+
+    <button class="btn primary block" style="margin-top:4px" onclick="submitSignup()">Create profile</button>
+  </div>
+</div>
+
+<!-- MOBILE APP BOTTOM NAV (phones only) -->
+<nav class="tabbar" id="tabbar">
+  <button class="tab on" data-tab="work" onclick="goTab('work')">
+    <span class="ico"><svg width="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
+    Find work
+  </button>
+  <button class="tab" data-tab="safety" onclick="goTab('safety')">
+    <span class="ico"><svg width="22" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.5-3 7.6-7 8.7C8 19.6 5 16.5 5 12V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
+    Safety
+  </button>
+  <button class="tab post" data-tab="hire" onclick="goTab('hire')">
+    <span class="ico"><svg width="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+    Post
+  </button>
+  <button class="tab" data-tab="join" onclick="goTab('join')">
+    <span class="ico"><svg width="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 20c1-4 4-6 7.5-6s6.5 2 7.5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+    Profile
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- Demo data (fully synthetic, no external sources) ---------- */
+// London boroughs only (the big ones).
+const AREAS = ["Westminster","Camden","Islington","Hackney","Tower Hamlets","Southwark","Lambeth","Wandsworth","Kensington & Chelsea","Hammersmith & Fulham","Greenwich","Lewisham","Newham","Brent","Ealing","Croydon"];
+const UNDERSERVED = new Set(["Hackney","Tower Hamlets","Newham","Brent","Lewisham","Croydon"]);
+const CATS = ["Pet care","Tutoring","Yard & garden","Cleaning","Moving & delivery","Errands","Events","Tech help","Childcare help","Handyman"];
+const SKILLS = ["Pet care","Tutoring","Yard & garden","Cleaning","Moving & delivery","Errands","Events","Tech help","Childcare help","Handyman","Cooking","Bike delivery"];
+
+// Pay units — the poster types a number, this says what the number means.
+const PAY_UNITS = [
+  {label:"per hour",       sfx:"/ hr"},
+  {label:"per job (fixed)",sfx:"/ job"},
+  {label:"per walk",       sfx:"/ walk"},
+  {label:"per visit",      sfx:"/ visit"},
+  {label:"per session",    sfx:"/ session"},
+  {label:"per errand",     sfx:"/ errand"},
+  {label:"per day",        sfx:"/ day"}
+];
+
+// Seed jobs. minAge auto-filters by youth-labor suitability; verified/rating build trust.
+const SEED = [
+  {t:"Weekend dog walker",cat:"Pet care",area:"Hackney",min:12,pay:"£10 / walk",by:"Dana R.",rate:4.9,ver:true,desc:"Two friendly dogs, 30-min daytime walks around the block."},
+  {t:"After-school reading buddy",cat:"Tutoring",area:"Newham",min:12,pay:"£12 / hr",by:"Community Centre",rate:5.0,ver:true,desc:"Help a 7-year-old with reading. Supervised, at the centre."},
+  {t:"Garden tidy-up",cat:"Yard & garden",area:"Tower Hamlets",min:13,pay:"£15 / hr",by:"Mr. Osei",rate:4.7,ver:true,desc:"Raking, weeding, watering. Tools provided, no power machinery."},
+  {t:"Babysitting helper (parent present)",cat:"Childcare help",area:"Croydon",min:14,pay:"£12 / hr",by:"Priya S.",rate:4.8,ver:true,desc:"Assist a parent watching toddlers on Saturday mornings."},
+  {t:"Phone & tablet setup for a senior",cat:"Tech help",area:"Westminster",min:12,pay:"£14 / session",by:"Golden Years Club",rate:5.0,ver:true,desc:"Show a neighbour how to video-call family. At the library."},
+  {t:"Farmers-market stall setup",cat:"Events",area:"Newham",min:14,pay:"£13 / hr",by:"Market Co-op",rate:4.6,ver:true,desc:"Saturday 8–11am setup. Light lifting only."},
+  {t:"Grocery errands for elderly residents",cat:"Errands",area:"Tower Hamlets",min:13,pay:"£10 / errand",by:"Neighbours Trust",rate:4.9,ver:true,desc:"Pick up groceries within 3 blocks. Daytime."},
+  {t:"House move — help load van",cat:"Moving & delivery",area:"Southwark",min:18,pay:"£18 / hr",by:"Sam K.",rate:4.5,ver:true,desc:"Two hours lifting boxes on Sunday. Adults only."},
+  {t:"Deep-clean before viewing",cat:"Cleaning",area:"Islington",min:16,pay:"£16 / hr",by:"Lettings Ltd",rate:4.4,ver:true,desc:"3-hour flat clean. Supplies provided."},
+  {t:"Homework helper — maths basics",cat:"Tutoring",area:"Brent",min:13,pay:"£12 / hr",by:"Youth Club",rate:4.9,ver:true,desc:"Support a Year 5 pupil with times tables."},
+  {t:"Fix a squeaky gate & shelf",cat:"Handyman",area:"Camden",min:18,pay:"£25 / job",by:"Lena M.",rate:4.8,ver:true,desc:"Small handyman tasks, own basic tools helpful. Adults only."},
+  {t:"Cat feeding while away",cat:"Pet care",area:"Lewisham",min:12,pay:"£8 / visit",by:"Tom B.",rate:4.7,ver:false,desc:"Feed two cats, 15-min visits, for a week."},
+  {t:"Birthday party helper",cat:"Events",area:"Croydon",min:14,pay:"£12 / hr",by:"Grace W.",rate:4.9,ver:true,desc:"Help run games at a kids' party. Parents on site."},
+  {t:"Weekend car-wash crew",cat:"Cleaning",area:"Hackney",min:14,pay:"£12 / hr",by:"Scout Group",rate:5.0,ver:true,desc:"Community fundraiser car wash. Daytime, buckets & sponges."},
+  {t:"Menu leaflet delivery",cat:"Moving & delivery",area:"Brent",min:15,pay:"£14 / hr",by:"Corner Bistro",rate:4.3,ver:true,desc:"Deliver menus locally, daylight hours, on foot or bike."},
+];
+
+let selectedSignupSkills = new Set();
+let mode = "work";       // hero panel: work | hire
+let signupRole = "work"; // signup role
+let pendingJob = null;
+
+/* ---------- Helpers ---------- */
+function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:"smooth"});}
+function scrollTop(){window.scrollTo({top:0,behavior:"smooth"});}
+function toast(msg){const t=document.getElementById("toast");t.innerHTML=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000);}
+function closeModal(id){document.getElementById(id).classList.remove("show");}
+function jobs(){return JSON.parse(localStorage.getItem("giggo_jobs")||"null")||SEED;}
+function saveJobs(list){localStorage.setItem("giggo_jobs",JSON.stringify(list));}
+
+function fillSelect(sel,items,firstLabel){
+  sel.innerHTML="";
+  if(firstLabel){const o=document.createElement("option");o.value="";o.textContent=firstLabel;sel.appendChild(o);}
+  items.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v+(UNDERSERVED.has(v)?" ★":"");sel.appendChild(o);});
+}
+function fillAges(sel,from){sel.innerHTML="";for(let a=from;a<=65;a++){const o=document.createElement("option");o.value=a;o.textContent=a>=60?"60+":a;if(a>60)break;sel.appendChild(o);}}
+
+/* ---------- Mode toggle ---------- */
+function setMode(m){
+  mode=m;
+  document.getElementById("segWork").classList.toggle("on",m==="work");
+  document.getElementById("segHire").classList.toggle("on",m==="hire");
+  document.getElementById("viewWork").classList.toggle("hidden",m!=="work");
+  document.getElementById("viewHire").classList.toggle("hidden",m!=="hire");
+}
+
+/* ---------- Job rendering ---------- */
+function renderJobs(){
+  const area=document.getElementById("fArea").value;
+  const cat=document.getElementById("fCat").value;
+  const age=parseInt(document.getElementById("fAge").value,10);
+  const q=document.getElementById("fSearch").value.trim().toLowerCase();
+
+  let list=jobs().filter(j=>j.min<=age)
+    .filter(j=>!area||j.area===area)
+    .filter(j=>!cat||j.cat===cat)
+    .filter(j=>!q||(j.t+" "+j.desc+" "+j.cat).toLowerCase().includes(q));
+
+  // Priority to opportunities in underserved neighborhoods.
+  list.sort((a,b)=>(UNDERSERVED.has(b.area)?1:0)-(UNDERSERVED.has(a.area)?1:0));
+
+  const el=document.getElementById("jobList");
+  el.innerHTML="";
+  document.getElementById("jobCount").textContent=
+    list.length+" job"+(list.length===1?"":"s")+" you're eligible for at age "+age+(area?(" in "+area):"")+".";
+
+  if(!list.length){el.innerHTML='<div class="card muted">No matches yet — widen your category, area, or age filter.</div>';return;}
+
+  list.forEach(j=>{
+    const card=document.createElement("div");card.className="card job";
+    card.innerHTML=`
+      <h3>${j.t}</h3>
+      <div class="meta">
+        <span class="badge cat">${j.cat}</span>
+        <span class="badge pay">${j.pay}</span>
+        <span class="badge age">Age ${j.min}+</span>
+        <span class="badge area">📍 ${j.area}${UNDERSERVED.has(j.area)?" ★":""}</span>
+      </div>
+      <div class="desc">${j.desc}</div>
+      <div class="foot">
+        <span class="poster">${j.ver?'<span class="badge verified">✓ Verified</span>':''} ${j.by} · <span class="stars">★ ${j.rate.toFixed(1)}</span></span>
+        <button class="btn primary sm" onclick='applyJob(${JSON.stringify(j.t)})'>Apply</button>
+      </div>`;
+    el.appendChild(card);
+  });
+}
+
+/* ---------- Apply / booking ---------- */
+function applyJob(title){
+  const p=JSON.parse(localStorage.getItem("giggo_profile")||"null");
+  if(!p){toast("Create a profile first →");openSignup();return;}
+  if(p.needsGuardian && !p.guardianApproved){toast("Waiting on guardian approval before you can apply.");return;}
+  pendingJob=title;
+  document.getElementById("bkTitle").textContent="Apply: "+title;
+  document.getElementById("bkSub").textContent="Here's how you'll stay protected on this job.";
+  document.getElementById("booking").classList.add("show");
+}
+function confirmBooking(){
+  closeModal("booking");
+  toast('Application sent for "'+pendingJob+'" — you\'ll get a reply fast. 🎉');
+}
+
+/* ---------- Post a job ---------- */
+function submitJob(){
+  const t=document.getElementById("pTitle").value.trim();
+  const cat=document.getElementById("pCat").value;
+  const area=document.getElementById("pArea").value;
+  const payNum=parseInt(document.getElementById("pPay").value,10);
+  const unit=document.getElementById("pUnit").value; // e.g. "/ hr"
+  const min=parseInt(document.getElementById("pMinAge").value,10);
+  const desc=document.getElementById("pDesc").value.trim();
+  if(!t){toast("Give your job a title.");return;}
+  if(!area){toast("Choose a neighbourhood.");return;}
+  if(!payNum||payNum<=0){toast("Enter how much you'll pay — just the number, e.g. 15.");return;}
+  // Poster types a number; we attach the £ and the rate type.
+  const pay="£"+payNum+" "+unit;
+
+  const list=jobs().slice();
+  list.unshift({t,cat,area,min,pay,by:"You",rate:5.0,ver:false,desc:desc||"No description provided."});
+  saveJobs(list);
+  document.getElementById("statJobs").textContent=list.length;
+
+  // clear form
+  ["pTitle","pPay","pDesc"].forEach(id=>document.getElementById(id).value="");
+  toast("Job posted! Switching you to nearby workers. ✅");
+  setMode("work");
+  if(area)document.getElementById("fArea").value=area;
+  renderJobs();
+  scrollToId("panel");
+}
+
+/* ---------- Signup ---------- */
+function openSignup(){document.getElementById("signup").classList.add("show");}
+function setRole(r){
+  signupRole=r;
+  document.getElementById("rWork").classList.toggle("on",r==="work");
+  document.getElementById("rHire").classList.toggle("on",r==="hire");
+  document.getElementById("skillsWrap").style.display=r==="work"?"block":"none";
+}
+function toggleGuardian(){
+  const age=parseInt(document.getElementById("sAge").value,10);
+  document.getElementById("guardianBox").style.display=(signupRole==="work"&&age<18)?"block":"none";
+}
+function submitSignup(){
+  const name=document.getElementById("sName").value.trim();
+  const age=parseInt(document.getElementById("sAge").value,10);
+  const area=document.getElementById("sArea").value;
+  const needsGuardian=(signupRole==="work"&&age<18);
+  const guardian=document.getElementById("sGuardian").value.trim();
+
+  if(!name){toast("Add your first name.");return;}
+  if(needsGuardian && !/.+@.+\..+/.test(guardian)){toast("A guardian email is required for under-18 workers.");return;}
+
+  const profile={name,age,area,role:signupRole,skills:[...selectedSignupSkills],
+    needsGuardian,guardianEmail:needsGuardian?guardian:null,guardianApproved:false};
+  localStorage.setItem("giggo_profile",JSON.stringify(profile));
+  closeModal("signup");
+
+  if(signupRole==="hire"){
+    setMode("hire");
+    if(area)document.getElementById("pArea").value=area;
+    toast("Welcome, "+name+"! Post your first job below. 📣");
+    scrollToId("panel");
+    return;
+  }
+
+  // worker
+  setMode("work");
+  if(area)document.getElementById("fArea").value=area;
+  if(age)document.getElementById("fAge").value=String(Math.min(age,65));
+  renderJobs();
+  scrollToId("panel");
+  if(needsGuardian){
+    toast("Profile saved. Guardian approval email sent (demo).");
+    setTimeout(()=>{const p=JSON.parse(localStorage.getItem("giggo_profile"));if(p){p.guardianApproved=true;localStorage.setItem("giggo_profile",JSON.stringify(p));toast("Guardian approved ✓ You can now apply.");}},4500);
+  }else{
+    toast("Profile saved — start applying, "+name+"!");
+  }
+}
+
+/* ---------- Skills chips ---------- */
+function buildSkillChips(){
+  const c=document.getElementById("signupSkills");c.innerHTML="";
+  SKILLS.forEach(sname=>{
+    const chip=document.createElement("div");chip.className="chip";chip.textContent=sname;
+    chip.onclick=()=>{if(selectedSignupSkills.has(sname)){selectedSignupSkills.delete(sname);chip.classList.remove("on");}else{selectedSignupSkills.add(sname);chip.classList.add("on");}};
+    c.appendChild(chip);
+  });
+}
+
+/* ---------- Init ---------- */
+function init(){
+  fillSelect(document.getElementById("fArea"),AREAS,"All neighborhoods");
+  fillSelect(document.getElementById("fCat"),CATS,"All categories");
+  fillSelect(document.getElementById("sArea"),AREAS,"Choose neighborhood");
+  fillSelect(document.getElementById("pArea"),AREAS,"Choose neighborhood");
+  fillSelect(document.getElementById("pCat"),CATS,null);
+  // Pay-unit picker: value is the suffix we store, text is the friendly label.
+  const pu=document.getElementById("pUnit");pu.innerHTML="";
+  PAY_UNITS.forEach(u=>{const o=document.createElement("option");o.value=u.sfx;o.textContent=u.label;pu.appendChild(o);});
+  fillAges(document.getElementById("fAge"),12);
+  fillAges(document.getElementById("sAge"),12);
+  fillAges(document.getElementById("pMinAge"),12);
+  document.getElementById("fAge").value="16";
+  buildSkillChips();
+  document.getElementById("statJobs").textContent=jobs().length;
+  setMode("work");
+  toggleGuardian();
+  renderJobs();
+}
+init();
+
+/* ---------- Mobile app: bottom tab bar ---------- */
+function goTab(tab){
+  document.querySelectorAll('.tabbar .tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  if(tab==='work'){setMode('work');scrollToId('panel');}
+  else if(tab==='hire'){setMode('hire');scrollToId('panel');}
+  else if(tab==='safety'){scrollToId('safety');}
+  else if(tab==='join'){openSignup();}
+}
+
+/* ---------- PWA: installable app ---------- */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('installBtn').classList.add('show');
+});
+function installApp(){
+  if(!deferredPrompt){toast("On iPhone: tap Share → Add to Home Screen to install.");return;}
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.finally(()=>{
+    deferredPrompt=null;
+    document.getElementById('installBtn').classList.remove('show');
+  });
+}
+window.addEventListener('appinstalled',()=>{toast("Giggo installed — find it on your home screen. 🎉");});
+
+/* Register the service worker so the site installs & works offline. */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>

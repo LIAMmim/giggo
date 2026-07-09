@@ -1,0 +1,24 @@
+# system
+.DS_Store
+
+# editor / IDE
+.claude/
+.vscode/
+.idea/
+
+# secrets
+.env
+.env.local
+*.pem
+
+# build artefacts
+node_modules/
+__pycache__/
+*.pyc
+
+# heavy binaries kept out of git
+*.pptx
+*.pdf
+*.doc
+*.docx
+*.key
